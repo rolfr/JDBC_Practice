@@ -27,7 +27,7 @@ public class JdbcClass {
         // Setup the connection with the DB
     	try
     	{
-    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=Soquel1j");
+    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=jdbcT3st!");
     	}
     	catch (SQLException e)
     	{
@@ -78,6 +78,32 @@ public class JdbcClass {
     	}
     	
     	System.out.printf("Successfully added %d person records.", names.length);
+    }
+    
+    public void insertClass(String name)
+    {
+    	try
+    	{
+	    	statement = connect.createStatement();
+	    	statement.execute("INSERT INTO class (Name) VALUES ('" + name + "')");
+    	}
+    	catch (SQLException e)
+    	{
+    		System.out.printf("%s", e);
+    		return;
+    	}    	
+
+    	System.out.printf("Successfully added person %s.", name);
+    }
+    
+    public void insertClasses(String[] classNames)
+    {
+    	
+    }
+    
+    public void chooseTeachers(int count)
+    {
+    	
     }
 
     // You need to close the resultSet
