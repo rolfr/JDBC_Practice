@@ -80,7 +80,7 @@ public class GenerateData {
 	}
 	
 	static private char lastLetter = '\0';
-	private char EnglishLetter(boolean isUpperCase, boolean isVowel)	{
+	private char EnglishLetter(boolean isUpperCase, boolean isVowel) {
 		boolean isUnique = false;
 		char candidate = '\0';
 		while (!isUnique)

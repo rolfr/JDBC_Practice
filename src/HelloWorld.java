@@ -3,19 +3,14 @@ public class HelloWorld {
 
 	public static void main(String[] args) {
 		GenerateData dataGen = new GenerateData();
-		String[] bogusNames = dataGen.Names(10000);
+		String[] bogusNames = dataGen.Names(100000);
 		
-		for(String n : bogusNames)
-		{
-			System.out.println(n);
-		}
-		
-		/*JdbcClass jdbc = new JdbcClass();
+		JdbcClass jdbc = new JdbcClass();
         try {
-			jdbc.readDataBase();
+			jdbc.insertPersons(bogusNames);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 }

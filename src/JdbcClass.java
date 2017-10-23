@@ -1,3 +1,4 @@
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,93 +8,80 @@ import java.sql.Statement;
 import java.util.Date;
 
 public class JdbcClass {
-	private Connection connect = null;
+	private static Connection connect = null;
     private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
-
-    public void readDataBase() throws Exception {
-        try {
-            // This will load the MySQL driver, each DB has its own driver
-            Class.forName("com.mysql.jdbc.Driver");
-            // Setup the connection with the DB
-            connect = DriverManager
-                    .getConnection("jdbc:mysql://rolfr-toshiba:3306/feedback?user=rolf&password=Soquel1j");
-
-            // Statements allow to issue SQL queries to the database
-            statement = connect.createStatement();
-            // Result set get the result of the SQL query
-            resultSet = statement
-                    .executeQuery("select * from feedback.comments");
-            writeResultSet(resultSet);            // PreparedStatements can use variables and are more efficient
-            preparedStatement = connect
-                    .prepareStatement("insert into  feedback.comments values (default, ?, ?, ?, ? , ?, ?)");
-            // "myuser, webpage, datum, summary, COMMENTS from feedback.comments");
-            // Parameters start with 1
-            preparedStatement.setString(1, "Test");
-            preparedStatement.setString(2, "TestEmail");
-            preparedStatement.setString(3, "TestWebpage");
-            preparedStatement.setDate(4, new java.sql.Date(2009, 12, 11));
-            preparedStatement.setString(5, "TestSummary");
-            preparedStatement.setString(6, "TestComment");
-            preparedStatement.executeUpdate();
-
-            preparedStatement = connect
-                    .prepareStatement("SELECT myuser, webpage, datum, summary, COMMENTS from feedback.comments");
-            resultSet = preparedStatement.executeQuery();
-            writeResultSet(resultSet);
-
-            // Remove again the insert comment
-            preparedStatement = connect
-            .prepareStatement("delete from feedback.comments where myuser= ? ; ");
-            preparedStatement.setString(1, "Test");
-            preparedStatement.executeUpdate();
-
-            resultSet = statement
-            .executeQuery("select * from feedback.comments");
-            writeMetaData(resultSet);
-
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            close();
-        }
+    
+    static {
+    	// This will load the MySQL driver, each DB has its own driver
+    	try
+    	{
+    		Class.forName("com.mysql.jdbc.Driver");
+    	}
+    	catch (ClassNotFoundException e)
+    	{
+    		System.out.printf("%s", e);
+    	}
+    	
+        // Setup the connection with the DB
+    	try
+    	{
+    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=Soquel1j");
+    	}
+    	catch (SQLException e)
+    	{
+    		System.out.printf("%s",  e);
+    	}
     }
+    
+    public void insertPerson(String name)
+    {
+    	try
+    	{
+	    	statement = connect.createStatement();
+	    	statement.execute("INSERT INTO person (Name) VALUES ('" + name + "')");
+    	}
+    	catch (SQLException e)
+    	{
+    		System.out.printf("%s", e);
+    		return;
+    	}    	
 
-    private void writeMetaData(ResultSet resultSet) throws SQLException {
-        //  Now get some metadata from the database
-        // Result set get the result of the SQL query
-
-        System.out.println("The columns in the table are: ");
-
-        System.out.println("Table: " + resultSet.getMetaData().getTableName(1));
-        for  (int i = 1; i<= resultSet.getMetaData().getColumnCount(); i++){
-            System.out.println("Column " +i  + " "+ resultSet.getMetaData().getColumnName(i));
-        }
+    	System.out.printf("Successfully added person %s.", name);
     }
+    
+    public void insertPersons(String[] names)
+    {
+    	try
+    	{
+	    	String nameList = "";
+	    	for(int i = 1; i <= names.length; i++)
+	    	{
+	    		nameList += "(?),";
+	    	}
+	    	nameList = nameList.substring(0, nameList.length() - 1);
+	    	preparedStatement = connect.prepareStatement("INSERT INTO person (Name) VALUES " + nameList);
 
-    private void writeResultSet(ResultSet resultSet) throws SQLException {
-        // ResultSet is initially before the first data set
-        while (resultSet.next()) {
-            // It is possible to get the columns via name
-            // also possible to get the columns via the column number
-            // which starts at 1
-            // e.g. resultSet.getSTring(2);
-            String user = resultSet.getString("myuser");
-            String website = resultSet.getString("webpage");
-            String summary = resultSet.getString("summary");
-            Date date = resultSet.getDate("datum");
-            String comment = resultSet.getString("comments");
-            System.out.println("User: " + user);
-            System.out.println("Website: " + website);
-            System.out.println("summary: " + summary);
-            System.out.println("Date: " + date);
-            System.out.println("Comment: " + comment);
-        }
+	    	// Because I apparently can't instantiate a PreparedStatement without a SQL statement,
+	    	//  I need to use a separate for loop to apply the .setString values afterwards.
+	    	for(int i = 1; i <= names.length; i++)
+	    	{
+	    		preparedStatement.setString(i,  names[i - 1]);
+	    	}
+	    	preparedStatement.executeUpdate();
+    	}
+    	catch (SQLException e)
+    	{
+    		System.out.printf("%s", e);
+    		return;
+    	}
+    	
+    	System.out.printf("Successfully added %d person records.", names.length);
     }
 
     // You need to close the resultSet
-    private void close() {
+    public void finalize() {
         try {
             if (resultSet != null) {
                 resultSet.close();
@@ -107,7 +95,7 @@ public class JdbcClass {
                 connect.close();
             }
         } catch (Exception e) {
-
+        	System.out.printf("%s", e);
         }
     }
 }
