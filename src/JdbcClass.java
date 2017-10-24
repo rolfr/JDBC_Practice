@@ -54,12 +54,13 @@ public class JdbcClass {
     							+ "PersonId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, "
     							+ "Name VARCHAR(40) NOT NULL)");
     		statement.addBatch("CREATE TABLE Class ( "
-    							+ "ID INT PRIMARY KEY NOT NULL AUTO_INCREMENT, "
+    							+ "ClassId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, "
     							+ "Name VARCHAR(35) NOT NULL, "
     							+ "TeacherId INT NOT NULL)");
     		statement.addBatch("CREATE TABLE StudentClass ( "
     							+ "StudentId INT NOT NULL, "
-    							+ "ClassId INT NOT NULL,Grade VARCHAR(2))");
+    							+ "ClassId INT NOT NULL, "
+    							+ "Grade VARCHAR(2))");
     		statement.executeBatch();
     	}
     	catch (SQLException e)
@@ -145,6 +146,67 @@ public class JdbcClass {
     		System.out.printf("%s%n", e);
     	}
     	  	
+    }
+    
+    public void registerStudents(int minCourseload, int maxCourseload)
+    {
+    	ArrayList<Integer> students = new ArrayList<Integer>();
+    	ArrayList<Integer> classes = new ArrayList<Integer>();
+    	
+    	try
+    	{
+    		// get the list of students (persons who aren't teachers)
+    		Statement statement = connect.createStatement();
+    		ResultSet resultSet = statement.executeQuery("SELECT PersonId FROM person "
+    													+ "WHERE person.PersonId NOT IN ( "
+    													+ " SELECT TeacherId FROM class)");
+    		while (resultSet.next() == true)
+    			students.add(resultSet.getInt(1));  
+    		
+    		// get the list of classes
+    		resultSet = statement.executeQuery("SELECT ClassId FROM class");
+    		while (resultSet.next() == true)
+    			classes.add(resultSet.getInt(1));
+    		
+    		// for each student, assign them to 'minCourseload' to 'maxCourseload' classes
+    		HashMap<Integer, ArrayList<Integer>> mappings = new HashMap<Integer, ArrayList<Integer>>();
+    		String values = "";
+    		for (int student : students)
+    		{
+    			int courseLoad = (int)(Math.random() * (maxCourseload - minCourseload) + minCourseload);
+    			ArrayList<Integer> picks = new ArrayList<Integer>();
+    			for (int classChoice = 0; classChoice < courseLoad; )
+    			{
+    				int choice = (int)(Math.random() * classes.size());
+    				if (!picks.contains(choice))
+					{
+    					classChoice++;
+    					picks.add(choice);
+    	    			values += "(?,?),";
+					}
+    			}
+    			mappings.put(student, picks);
+    		}
+    		values = values.substring(0, values.length() - 1);
+    		
+    		// 
+    		PreparedStatement preparedStatement = connect.prepareStatement("INSERT INTO StudentClass (StudentId, ClassId) VALUES " + values);
+    		int valueCount = 1;
+    		for (int studentId : students)
+    		{
+    			for (int classId : mappings.get(studentId))
+    			{
+    				preparedStatement.setInt(valueCount++, studentId);
+    				preparedStatement.setInt(valueCount++, classId);
+    			}
+    		}
+    		preparedStatement.execute();
+    		preparedStatement.close();
+    	}
+    	catch (SQLException e)
+    	{
+    		System.out.printf("%s%n", e);
+    	}
     }
     
     // Select persons with a last name ending in 'suffix'

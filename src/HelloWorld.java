@@ -10,6 +10,7 @@ public class HelloWorld {
         try {
 			jdbc.insertPersons(personNames);
 			jdbc.insertClasses(classNames, "on");
+			jdbc.registerStudents(2, 6);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
