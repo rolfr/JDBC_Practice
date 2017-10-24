@@ -9,7 +9,7 @@ public class HelloWorld {
 		JdbcClass jdbc = new JdbcClass();
         try {
 			jdbc.insertPersons(personNames);
-        	jdbc.insertClasses(classNames, "on");
+			jdbc.insertClasses(classNames, "on");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
