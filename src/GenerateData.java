@@ -26,6 +26,32 @@ public class GenerateData {
 		}
 	}
 	
+	public String[] ClassNames(int count) {
+		String[] names = new String[count];
+		for (int nameItem = 0; nameItem < count; nameItem++)
+		{
+			int wordCount = 0;
+			double wordCountRnd = Math.random();
+			if (wordCountRnd <= .3)
+				wordCount = 1;
+			else if (wordCountRnd <= .6)
+				wordCount = 2;
+			else if (wordCountRnd <= .85)
+				wordCount = 3;
+			else if (wordCountRnd <= 1)
+				wordCount = 4;
+			
+			String name = "";
+			for (int wordItem = 0; wordItem < wordCount; wordItem++)
+			{
+				int length = (int)(Math.random() * 6) + 2; 
+				name += this.Name(length) + " ";
+			}
+			names[nameItem] = name.trim();			
+		}
+		return names;
+	}
+	
 	public String[] Names(int count) {
 		String[] names = new String[count];
 		for (int i = 0; i < count; i++)
