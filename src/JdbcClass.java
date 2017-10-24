@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.Scanner;
 
 public class JdbcClass {
 	private static Connection connect = null;
@@ -27,7 +28,12 @@ public class JdbcClass {
         // Setup the connection with the DB
     	try
     	{
-    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=jdbcT3st!");
+    		System.out.print("Please enter the database password:");
+    		Scanner scan = new Scanner(System.in);
+    		String password = scan.next();
+    		scan.close();
+    		
+    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=" + password);
     	}
     	catch (SQLException e)
     	{
@@ -82,10 +88,11 @@ public class JdbcClass {
     
     public void insertClass(String name)
     {
+    	int teacherId = this.getTeacherId("ion");
     	try
     	{
 	    	statement = connect.createStatement();
-	    	statement.execute("INSERT INTO class (Name) VALUES ('" + name + "')");
+	    	statement.execute("INSERT INTO class (Name, TeacherId) VALUES ('" + name + teacherId + "')");
     	}
     	catch (SQLException e)
     	{
@@ -101,9 +108,10 @@ public class JdbcClass {
     	
     }
     
-    public void chooseTeachers(int count)
+    public int getTeacherId(String suffix)
     {
-    	
+    	return 0;
+    	//statement = connect.
     }
 
     // You need to close the resultSet
