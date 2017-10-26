@@ -3,10 +3,10 @@ public class JdbcSqlTest {
 
 	public static void main(String[] args) {
 		GenerateData dataGen = new GenerateData();
-		String[] personNames = dataGen.Names(1000);
-		String[] classNames = dataGen.ClassNames(30);
+		String[] personNames = dataGen.Names(2500);
+		String[] classNames = dataGen.ClassNames(80);
 		
-		MySqlStudentClassTeacher jdbc = new MySqlStudentClassTeacher();
+		IStudentClassTeacher jdbc = new DbAccessClassFactory().getDbInterface(DatabaseType.AzureSQL);
         try {
 			jdbc.insertPersons(personNames);
 			jdbc.insertClasses(classNames, "on");

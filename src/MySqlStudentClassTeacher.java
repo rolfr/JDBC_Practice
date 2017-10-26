@@ -5,6 +5,7 @@ public final class MySqlStudentClassTeacher extends StudentClassTeacher{
 	public MySqlStudentClassTeacher()
 	{
 		this.setConnection();
+		this.initTables();
 	}
 	
 	public void setConnection()
@@ -14,7 +15,7 @@ public final class MySqlStudentClassTeacher extends StudentClassTeacher{
     	{   // MySQL database driver
     		Class.forName("com.mysql.jdbc.Driver");
     		
-    		System.out.print("Please enter the database username:");    		
+    		System.out.print("Please enter the MySQL database username:");    		
     		Scanner scan = new Scanner(System.in);
     		String username = scan.nextLine();
     		System.out.printf("Please enter the password for '%s':", username);
