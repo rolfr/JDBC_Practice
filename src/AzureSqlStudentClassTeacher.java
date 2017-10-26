@@ -2,7 +2,6 @@ import java.sql.*;
 import java.util.Scanner;
 import com.microsoft.sqlserver.jdbc.*;
 
-
 public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 	public AzureSqlStudentClassTeacher()
 	{
@@ -25,12 +24,13 @@ public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 			scan.close();
 			
 			// Connect to Microsoft Azure SQL database
-    		this.connectionString = String.format("jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=%s@programprinterdb;password=%s;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;", username, password);
-            this.connection = DriverManager.getConnection(connectionString);  
+    		this.connectionString = "jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=" + username"@programprinterdb;password=" + password + ";encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"; //, username, password);
+    		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    		this.connection = DriverManager.getConnection(connectionString);
 		}
-		catch (Exception se)
-		{   // in case I want to do something specific later for each exception type
-			System.out.printf("%s%n", se);
+		catch (Exception e)
+		{
+			System.out.printf("%s%n", e);
 		}
 	}
 }
