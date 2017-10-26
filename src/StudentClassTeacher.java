@@ -1,79 +1,74 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
-public class JdbcClass {
-	private static Connection connect = null;    
-    static {
-    	// This will load the MySQL driver, each DB has its own driver
+public abstract class StudentClassTeacher implements IStudentClassTeacher {
+	protected String connectionString;
+	protected Connection connection = null;
+	private static String[] initStatements;
+	private HashMap<String, String> sqlStatementMappings;
+	
+	static {
+		initStatements = new String[6];
+		initStatements[0] = "DROP TABLE StudentClass";
+		initStatements[1] = "DROP TABLE class";
+		initStatements[2] = "DROP TABLE person";
+		initStatements[3] = "CREATE TABLE Person (" +
+							"PersonId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, " + 
+							"Name VARCHAR(40) NOT NULL);";
+		initStatements[4] = "CREATE TABLE Class (" +
+							"ClassId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, " +
+							"Name VARCHAR(35) NOT NULL, " +
+							"TeacherId INT NOT NULL);";
+		initStatements[5] = "CREATE TABLE StudentClass (" +
+							"StudentId INT NOT NULL, " +
+							"ClassId INT NOT NULL, " +
+							"Grade VARCHAR(2));";		
+	}
+
+	public Connection getConnection()
+	{
+		if (this.connection == null)
+			this.setConnection();
+		return this.connection;
+	}
+	
+	public abstract void setConnection();
+	
+	protected final void addSqlStatementMapping(String toReplace, String replaceWith) {
+		this.sqlStatementMappings.put(toReplace, replaceWith);
+	}
+	
+	public void initTables() {
     	try
     	{
-    		Class.forName("com.mysql.jdbc.Driver");
-    	}
-    	catch (ClassNotFoundException e)
-    	{
-    		System.out.printf("%s%n", e);
-    	}
-    	
-        // Setup the connection with the DB
-    	try
-    	{
-    		System.out.print("Please enter the database password:");
-    		Scanner scan = new Scanner(System.in);
-    		String password = scan.next();
-    		scan.close();
-    		
-    		connect = DriverManager.getConnection("jdbc:mysql://rolfr-toshiba:3306/studentclassteacher?user=rolf&password=" + password);
-    	}
-    	catch (SQLException e)
-    	{
-    		System.out.printf("%s%n",  e);
-    	}
-    }
-    
-    public JdbcClass()
-    {
-    	this.Init();
-    }
-    
-    private void Init()
-    {
-    	try
-    	{
-    		Statement statement = connect.createStatement();
-    		statement.addBatch("DROP TABLE StudentClass");
-    		statement.addBatch("DROP TABLE class");
-    		statement.addBatch("DROP TABLE person");
-    		statement.addBatch("CREATE TABLE Person ( "
-    							+ "PersonId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, "
-    							+ "Name VARCHAR(40) NOT NULL)");
-    		statement.addBatch("CREATE TABLE Class ( "
-    							+ "ClassId INT PRIMARY KEY NOT NULL AUTO_INCREMENT, "
-    							+ "Name VARCHAR(35) NOT NULL, "
-    							+ "TeacherId INT NOT NULL)");
-    		statement.addBatch("CREATE TABLE StudentClass ( "
-    							+ "StudentId INT NOT NULL, "
-    							+ "ClassId INT NOT NULL, "
-    							+ "Grade VARCHAR(2))");
+    		Statement statement = this.connection.createStatement();
+    		for (String batch : initStatements)
+    		{
+    			for (String mapping : sqlStatementMappings.keySet())
+    			{
+    				batch = batch.replaceAll(mapping, sqlStatementMappings.get(mapping));
+    			}
+    			statement.addBatch(batch);
+    		}
     		statement.executeBatch();
+    		statement.close();
     	}
     	catch (SQLException e)
     	{
     		System.out.println("Failed to reset database!");
     	}
-    }
-    
+	}
+	
     public void insertPerson(String name)
     {
     	try
     	{
-    		Statement statement = connect.createStatement();
+    		Statement statement = this.connection.createStatement();
 	    	statement.execute("INSERT INTO person (Name) VALUES ('" + name + "')");
 	    	statement.close();
     	}
@@ -96,7 +91,7 @@ public class JdbcClass {
 	    		nameList += "(?),";
 	    	}
 	    	nameList = nameList.substring(0, nameList.length() - 1);
-	    	PreparedStatement preparedStatement = connect.prepareStatement("INSERT INTO person (Name) VALUES " + nameList);
+	    	PreparedStatement preparedStatement = this.connection.prepareStatement("INSERT INTO person (Name) VALUES " + nameList);
 
 	    	// Because I apparently can't instantiate a PreparedStatement without a SQL statement,
 	    	//  I need to use a separate for loop to apply the .setString values afterwards.
@@ -130,7 +125,7 @@ public class JdbcClass {
     	
     	try
     	{
-	    	PreparedStatement statement = connect.prepareStatement("INSERT INTO class (Name, TeacherId) VALUES " + values);
+	    	PreparedStatement statement = this.connection.prepareStatement("INSERT INTO class (Name, TeacherId) VALUES " + values);
 	    	for (int parameterIndex = 1; parameterIndex <= classNames.length * 2; parameterIndex++)
 	    	{
 	    		statement.setString(parameterIndex, classNames[parameterIndex / 2]);
@@ -156,7 +151,7 @@ public class JdbcClass {
     	try
     	{
     		// get the list of students (persons who aren't teachers)
-    		Statement statement = connect.createStatement();
+    		Statement statement = this.connection.createStatement();
     		ResultSet resultSet = statement.executeQuery("SELECT PersonId FROM person "
     													+ "WHERE person.PersonId NOT IN ( "
     													+ " SELECT TeacherId FROM class)");
@@ -190,7 +185,7 @@ public class JdbcClass {
     		values = values.substring(0, values.length() - 1);
     		
     		// 
-    		PreparedStatement preparedStatement = connect.prepareStatement("INSERT INTO StudentClass (StudentId, ClassId) VALUES " + values);
+    		PreparedStatement preparedStatement = this.connection.prepareStatement("INSERT INTO StudentClass (StudentId, ClassId) VALUES " + values);
     		int valueCount = 1;
     		for (int studentId : students)
     		{
@@ -215,7 +210,7 @@ public class JdbcClass {
     	ArrayList<Model.Person> al = new ArrayList<Model.Person>();
     	try
     	{
-	    	Statement statement = connect.createStatement();
+	    	Statement statement = this.connection.createStatement();
 	    	ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE RIGHT(Name, " + suffix.length() + ") = '" + suffix + "'");
     	    
 	    	while (resultSet.next() == true)
@@ -240,8 +235,8 @@ public class JdbcClass {
     // You need to close the resultSet
     public void finalize() {
         try {
-            if (connect != null) {
-                connect.close();
+            if (this.connection != null) {
+            	this.connection.close();
             }
         } catch (Exception e) {
         	System.out.printf("%s%n", e);

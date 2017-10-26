@@ -1,12 +1,12 @@
 
-public class HelloWorld {
+public class JdbcSqlTest {
 
 	public static void main(String[] args) {
 		GenerateData dataGen = new GenerateData();
-		String[] personNames = dataGen.Names(10000);
-		String[] classNames = dataGen.ClassNames(250);
+		String[] personNames = dataGen.Names(1000);
+		String[] classNames = dataGen.ClassNames(30);
 		
-		JdbcClass jdbc = new JdbcClass();
+		IJdbc jdbc = new MySqlStudentClassTeacher();
         try {
 			jdbc.insertPersons(personNames);
 			jdbc.insertClasses(classNames, "on");
