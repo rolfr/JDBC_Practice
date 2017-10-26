@@ -6,7 +6,7 @@ public class JdbcSqlTest {
 		String[] personNames = dataGen.Names(1000);
 		String[] classNames = dataGen.ClassNames(30);
 		
-		IJdbc jdbc = new MySqlStudentClassTeacher();
+		MySqlStudentClassTeacher jdbc = new MySqlStudentClassTeacher();
         try {
 			jdbc.insertPersons(personNames);
 			jdbc.insertClasses(classNames, "on");
