@@ -23,7 +23,7 @@ public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 			scan.close();
 			
 			// Connect to Microsoft Azure SQL database
-    		this.connectionString = "jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=" + username + "@programprinterdb;password=" + password + ";encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"; //, username, password);
+    		this.connectionString = String.format("jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=%s@programprinterdb;password=%s;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;", username, password);
     		this.connection = DriverManager.getConnection(connectionString);
 		}
 		catch (Exception e)
