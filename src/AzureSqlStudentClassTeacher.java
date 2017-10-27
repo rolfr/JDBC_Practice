@@ -1,6 +1,5 @@
 import java.sql.*;
 import java.util.Scanner;
-import com.microsoft.sqlserver.jdbc.*;
 
 public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 	public AzureSqlStudentClassTeacher()
@@ -8,7 +7,7 @@ public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 		this.addSqlStatementMapping("AUTO_INCREMENT", "IDENTITY(1,1)");
 		this.setConnection();
 		this.initTables();
-		this.queryParameterLimit = 2000;
+		this.queryParameterLimit = 900;
 	}
 	
 	public void setConnection()
@@ -24,8 +23,7 @@ public final class AzureSqlStudentClassTeacher extends StudentClassTeacher {
 			scan.close();
 			
 			// Connect to Microsoft Azure SQL database
-    		this.connectionString = "jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=" + username"@programprinterdb;password=" + password + ";encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"; //, username, password);
-    		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    		this.connectionString = "jdbc:sqlserver://programprinterdb.database.windows.net:1433;database=ProgramPrinterMusicData;user=" + username + "@programprinterdb;password=" + password + ";encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"; //, username, password);
     		this.connection = DriverManager.getConnection(connectionString);
 		}
 		catch (Exception e)

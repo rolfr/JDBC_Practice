@@ -56,8 +56,8 @@ public class GenerateData {
 		String[] names = new String[count];
 		for (int i = 0; i < count; i++)
 		{
-			int firstNameLength = (int)(Math.random() * 4) + 4;
-			int lastNameLength = (int)(Math.random() * 8) + 4;
+			int firstNameLength = (int)(Math.random() * 5) + 4;
+			int lastNameLength = (int)(Math.random() * 9) + 4;
 			
 			String firstName = this.Name(firstNameLength);
 			String lastName = this.Name(lastNameLength);
