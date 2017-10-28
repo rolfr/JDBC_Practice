@@ -6,6 +6,7 @@ public final class MySqlStudentClassTeacher extends StudentClassTeacher{
 	{
 		this.setConnection();
 		this.initTables();
+		this.queryParameterLimit = 50000;
 	}
 	
 	public void setConnection()

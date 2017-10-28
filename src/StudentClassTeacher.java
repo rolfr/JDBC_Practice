@@ -91,17 +91,19 @@ public abstract class StudentClassTeacher implements IStudentClassTeacher {
     	
 	    	// some transactions need to be broken up into batches, particularly against cloud services
 	    	for (int batchIndex = 1; batchIndex <= batches; batchIndex++) {
-		    	String nameList = "";
 		    	int batchStart = 1 + ((batchIndex - 1) * paramLimit); // e.g. for limit of 1000: 1, 1001, 2001, ...
 		    	int batchEnd = (batchIndex < batches) 
 		    					? batchIndex * paramLimit             // e.g. for limit of 1000: 1000, 2000, 3000, ...
 		    					: batchStart + leftoverItems - 1;
 		    	
-		    	for (int i = batchStart; i <= batchEnd; i++) {
-		    		nameList += "(?),";
+		    	StringBuilder sb = new StringBuilder();
+		    	sb.append("INSERT INTO person (Name) VALUES ");
+		    	for (int i = batchStart; i < batchEnd; i++) {
+		    		sb.append("(?),");
 		    	}
-		    	nameList = nameList.substring(0, nameList.length() - 1);
-		    	PreparedStatement preparedStatement = this.connection.prepareStatement("INSERT INTO person (Name) VALUES " + nameList);
+		    	sb.append("(?)");
+		    	String query = sb.toString();
+		    	PreparedStatement preparedStatement = this.connection.prepareStatement(query);
 	
 		    	// Because I apparently can't instantiate a PreparedStatement without a SQL statement,
 		    	//  I need to use a separate for loop to apply the .setString values afterwards.
@@ -143,18 +145,20 @@ public abstract class StudentClassTeacher implements IStudentClassTeacher {
 	    					? batchIndex * paramLimit  // e.g. for limit of 1000: 1000, 2000, 3000, ...
 	    					: batchStart + leftoverItems - 1;
 	    	ArrayList<Model.Person> teachers = this.getTeachers(teacherLastNamesEndWith);
-	    	String values = "";
 	    	HashMap<String, Integer> classTeacherMappings = new HashMap<String, Integer>();
 	    	
+	    	StringBuilder sb = new StringBuilder();
+	    	sb.append("INSERT INTO class (Name, TeacherId) VALUES ");
 	    	for (int classIndex = batchStart; classIndex <= batchEnd; classIndex++) {
 	    		int teacherIndex = (int)(Math.random() * teachers.size());
-	    		values += "(?,?),";
+	    		sb.append("(?,?),");
 	    		classTeacherMappings.put(classNames[classIndex - 1], teachers.get(teacherIndex).id);
 	    	}
-	    	values = values.substring(0, values.length() - 1);
+	    	String query = sb.toString();
+	    	query = query.substring(0, query.length() - 1);
 	    	
 	    	try {
-		    	PreparedStatement statement = this.connection.prepareStatement("INSERT INTO class (Name, TeacherId) VALUES " + values);
+		    	PreparedStatement statement = this.connection.prepareStatement(query);
 		    	int parameterIndex = 1;
 		    	for (int classIndex = batchStart; classIndex <= batchEnd; classIndex++) {
 		    		statement.setString(parameterIndex++, classNames[classIndex - 1]);
@@ -211,7 +215,8 @@ public abstract class StudentClassTeacher implements IStudentClassTeacher {
 		    					: batchStart + leftoverItems - 1;
 	    		// for each student, assign them to 'minCourseload' to 'maxCourseload' classes
 	    		HashMap<Integer, ArrayList<Integer>> mappings = new HashMap<Integer, ArrayList<Integer>>();
-	    		String values = "";
+	    		StringBuilder sb = new StringBuilder();
+	    		sb.append("INSERT INTO StudentClass (StudentId, ClassId) VALUES ");
 	    		for (int studentIndex = batchStart; studentIndex <= batchEnd; studentIndex++) {
 	    			int courseLoad = (int)(Math.random() * (maxCourseload - minCourseload + 1) + minCourseload);
 	    			ArrayList<Integer> picks = new ArrayList<Integer>();
@@ -222,15 +227,15 @@ public abstract class StudentClassTeacher implements IStudentClassTeacher {
 	    					classChoice++;
 	    					totalClassRegistrations++;
 	    					picks.add(choice);
-	    	    			values += "(?,?),";
+	    	    			sb.append("(?,?),");
 						}
 	    			}
 	    			mappings.put(students.get(studentIndex - 1), picks);
 	    		}
-	    		values = values.substring(0, values.length() - 1);
+	    		String query = sb.substring(0, sb.length() - 1);
 	    		
-	    		// 
-	    		PreparedStatement preparedStatement = this.connection.prepareStatement("INSERT INTO StudentClass (StudentId, ClassId) VALUES " + values);
+	    		// Prepare a statement for this batch of entries and execute it.
+	    		PreparedStatement preparedStatement = this.connection.prepareStatement(query);
 	    		int valueCount = 1;
 	    		for (int studentIndex = batchStart; studentIndex <= batchEnd; studentIndex++) {
 	    			for (int classId : mappings.get(students.get(studentIndex - 1))) {

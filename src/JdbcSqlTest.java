@@ -4,12 +4,13 @@ public class JdbcSqlTest {
 
 	public static void main(String[] args) {
 		GenerateData dataGen = new GenerateData();
-		String[] personNames = dataGen.Names(5400);
-		String[] classNames = dataGen.ClassNames(900);
+		String[] personNames = dataGen.Names(100000);
+		String[] classNames = dataGen.ClassNames(1000);
 		
 		System.out.print("Please select 1 to use MySQL, 2 to use Azure SQL: ");
 		Scanner scan = new Scanner(System.in);
 		int choice = scan.nextInt();
+		
 		DatabaseType dbType;
 		if (choice <= 1)
 			dbType = DatabaseType.MySQL;
