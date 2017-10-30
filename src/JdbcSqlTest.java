@@ -3,6 +3,13 @@ import java.util.*;
 public class JdbcSqlTest {
 
 	public static void main(String[] args) {
+		TraverseTreeWithoutRecursion BST = new TraverseTreeWithoutRecursion();
+		BST.generateStaticTestTree();
+		BST.traverseTreeInOrder();
+		
+				
+				
+		
 		GenerateData dataGen = new GenerateData();
 		String[] personNames = dataGen.Names(100000);
 		String[] classNames = dataGen.ClassNames(1000);
