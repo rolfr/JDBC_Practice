@@ -5,10 +5,7 @@ public class JdbcSqlTest {
 	public static void main(String[] args) {
 		TraverseTreeWithoutRecursion BST = new TraverseTreeWithoutRecursion();
 		BST.generateStaticTestTree();
-		BST.traverseTreeInOrder();
-		
-				
-				
+		BST.traverseTreeInOrder();				
 		
 		GenerateData dataGen = new GenerateData();
 		String[] personNames = dataGen.Names(100000);

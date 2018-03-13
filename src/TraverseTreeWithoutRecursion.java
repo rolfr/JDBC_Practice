@@ -103,5 +103,5 @@ public class TraverseTreeWithoutRecursion {
 		for (int student : studentList) {
 			this.insertNode(student, new int[] { 1, 2, 3 });
 		}
-	}
+	}	
 }
